@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.zqy.multidisplayinput;
+package com.elo.android.multiclientinputmethod;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -34,7 +34,7 @@ import java.util.Arrays;
 
 final class SoftInputWindow extends Dialog {
     private static final String TAG = "SoftInputWindow";
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private final KeyboardView mKeyboardView;
 
@@ -141,19 +141,23 @@ final class SoftInputWindow extends Dialog {
                 boolean isShifted = isShifted();  // Store the current state before resetting it.
                 resetShift();
                 switch (primaryCode) {
-                    case Keyboard.KEYCODE_CANCEL:
+                    case KeyCodes.KEYCODE_CANCEL:
                         hide();
                         break;
-                    case Keyboard.KEYCODE_DELETE:
+                    case KeyCodes.KEYCODE_DELETE:
                         inputConnection.sendKeyEvent(
                                 new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
                         inputConnection.sendKeyEvent(
                                 new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL));
                         break;
-                    case Keyboard.KEYCODE_MODE_CHANGE:
+                    case KeyCodes.ENTER:
+                        inputConnection.sendKeyEvent(
+                                new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_CENTER));
+                        break;
+                    case KeyCodes.KEYCODE_MODE_CHANGE:
                         handleSwitchKeyboard();
                         break;
-                    case Keyboard.KEYCODE_SHIFT:
+                    case KeyCodes.KEYCODE_SHIFT:
                         handleShift(isShifted);
                         break;
                     default:

@@ -5,29 +5,21 @@ plugins {
 
 android {
     signingConfigs {
-        release {
-            storeFile file("demo.jks")
-            storePassword '123456'
-            keyAlias 'demo'
-            keyPassword '123456'
-        }
-
         debug {
-            storeFile file("demo.jks")
-            storePassword '123456'
-            keyAlias 'demo'
-            keyPassword '123456'
+            keyAlias 'platformkey'
+            storePassword 'android'
+            storeFile file('/Users/sumankamilya/.android/debug.keystore')
         }
     }
 
     compileSdkVersion 31
 
     defaultConfig {
-        applicationId "com.zqy.multidisplayinput"
-        minSdk 31
+        applicationId "com.elo.android.multiclientinputmethod"
+        minSdk 29
         targetSdk 31
-        versionCode 1
-        versionName "1.0"
+        versionCode 9000
+        versionName "9000.9000.9000"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -41,7 +33,6 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
         }
     }
     compileOptions {

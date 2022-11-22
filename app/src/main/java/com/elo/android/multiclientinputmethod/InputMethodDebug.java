@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.zqy.multidisplayinput;
+package com.elo.android.multiclientinputmethod;
 
 import android.view.WindowManager;
 
@@ -117,3 +117,4 @@ final class InputMethodDebug {
         return joiner.setEmptyValue("(none)").toString();
     }
 }
+

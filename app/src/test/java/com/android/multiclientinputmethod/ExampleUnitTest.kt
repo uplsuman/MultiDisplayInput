@@ -1,4 +1,4 @@
-package com.zqy.multidisplayinput
+package com.android.multiclientinputmethod
 
 import org.junit.Test
 

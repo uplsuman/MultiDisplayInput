@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.zqy.multidisplayinput;
+package com.elo.android.multiclientinputmethod;
 
 import android.annotation.NonNull;
 import android.app.Service;
@@ -33,7 +33,7 @@ import android.view.Display;
  */
 public final class MultiClientInputMethod extends Service implements DisplayListener {
     private static final String TAG = "MultiClientInputMethod";
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     // last client that had active InputConnection for a given displayId.
     final SparseIntArray mDisplayToLastClientId = new SparseIntArray();
@@ -62,7 +62,7 @@ public final class MultiClientInputMethod extends Service implements DisplayList
 
                     @Override
                     public void addClient(int clientId, int uid, int pid,
-                            int selfReportedDisplayId) {
+                                          int selfReportedDisplayId) {
                         int imeDisplayId = mInputDisplayToImeDisplay.get(selfReportedDisplayId,
                                 selfReportedDisplayId);
                         final ClientCallbackImpl callback = new ClientCallbackImpl(

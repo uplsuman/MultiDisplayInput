@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.zqy.multidisplayinput"
-    android:sharedUserId="android.uid.system">
+    package="com.elo.android.multiclientinputmethod">
 
     <application
         android:allowBackup="true"
@@ -10,10 +9,11 @@
         android:roundIcon="@mipmap/demo_log"
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
-        <service android:name=".MultiClientInputMethod"
+        <service android:name="com.elo.android.multiclientinputmethod.MultiClientInputMethod"
             android:label="MultiClientInputMethod"
             android:permission="android.permission.BIND_INPUT_METHOD"
-            android:exported="true">
+            android:exported="true"
+            >
             <intent-filter>
                 <action android:name="android.inputmethodservice.MultiClientInputMethodService"/>
             </intent-filter>

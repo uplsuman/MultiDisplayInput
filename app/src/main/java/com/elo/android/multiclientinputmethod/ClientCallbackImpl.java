@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.zqy.multidisplayinput;
+package com.elo.android.multiclientinputmethod;
 
 import android.inputmethodservice.MultiClientInputMethodServiceDelegate;
 import android.os.Bundle;
@@ -31,7 +31,7 @@ import android.view.inputmethod.InputConnection;
 
 final class ClientCallbackImpl implements MultiClientInputMethodServiceDelegate.ClientCallback {
     private static final String TAG = "ClientCallbackImpl";
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private final MultiClientInputMethodServiceDelegate mDelegate;
     private final SoftInputWindowManager mSoftInputWindowManager;
@@ -44,9 +44,9 @@ final class ClientCallbackImpl implements MultiClientInputMethodServiceDelegate.
     private final MultiClientInputMethod mInputMethod;
 
     ClientCallbackImpl(MultiClientInputMethod inputMethod,
-            MultiClientInputMethodServiceDelegate delegate,
-            SoftInputWindowManager softInputWindowManager, int clientId, int uid, int pid,
-            int selfReportedDisplayId) {
+                       MultiClientInputMethodServiceDelegate delegate,
+                       SoftInputWindowManager softInputWindowManager, int clientId, int uid, int pid,
+                       int selfReportedDisplayId) {
         mInputMethod = inputMethod;
         mDelegate = delegate;
         mSoftInputWindowManager = softInputWindowManager;
@@ -60,6 +60,7 @@ final class ClientCallbackImpl implements MultiClientInputMethodServiceDelegate.
         // and introduce an appropriate synchronization mechanism instead of directly accessing
         // MultiClientInputMethod#mDisplayToLastClientId.
         mLooper = Looper.getMainLooper();
+
     }
 
     KeyEvent.DispatcherState getDispatcherState() {
@@ -108,6 +109,8 @@ final class ClientCallbackImpl implements MultiClientInputMethodServiceDelegate.
         // Seems that the Launcher3 has a bug to call onHideSoftInput() too early so we cannot
         // enforce clientId check yet.
         // TODO: Check clientId like we do so for onShowSoftInput().
+
+        Log.d(TAG, "onHideSoftInput: 1");
         window.hide();
     }
 
@@ -132,7 +135,7 @@ final class ClientCallbackImpl implements MultiClientInputMethodServiceDelegate.
 
     @Override
     public void onStartInputOrWindowGainedFocus(InputConnection inputConnection,
-            EditorInfo editorInfo, int startInputFlags, int softInputMode, int targetWindowHandle) {
+                                                EditorInfo editorInfo, int startInputFlags, int softInputMode, int targetWindowHandle) {
         if (DEBUG) {
             Log.v(TAG, "onStartInputOrWindowGainedFocus clientId=" + mClientId
                     + " editorInfo=" + editorInfo
@@ -153,12 +156,14 @@ final class ClientCallbackImpl implements MultiClientInputMethodServiceDelegate.
         }
 
         if (window.getTargetWindowHandle() != targetWindowHandle) {
+            Log.d(TAG, "onStartInputOrWindowGainedFocus: gidi1");
             // Target window has changed.  Report new IME target window to the system.
             mDelegate.reportImeWindowTarget(
                     mClientId, targetWindowHandle, window.getWindow().getAttributes().token);
         }
         final int lastClientId = mInputMethod.mDisplayToLastClientId.get(mSelfReportedDisplayId);
         if (lastClientId != mClientId) {
+            Log.d(TAG, "onStartInputOrWindowGainedFocus: gidi2");
             // deactivate previous client and activate current.
             mDelegate.setActive(lastClientId, false /* active */);
             mDelegate.setActive(mClientId, true /* active */);
@@ -166,10 +171,12 @@ final class ClientCallbackImpl implements MultiClientInputMethodServiceDelegate.
         if (inputConnection == null || editorInfo == null) {
             // Placeholder InputConnection case.
             if (window.getClientId() == mClientId) {
+                Log.d(TAG, "onStartInputOrWindowGainedFocus: gidi3");
                 // Special hack for temporary focus changes (e.g. notification shade).
                 // If we have already established a connection to this client, and if a placeholder
                 // InputConnection is notified, just ignore this event.
             } else {
+                Log.d(TAG, "onStartInputOrWindowGainedFocus: gidi4");
                 window.onDummyStartInput(mClientId, targetWindowHandle);
             }
         } else {
@@ -187,11 +194,14 @@ final class ClientCallbackImpl implements MultiClientInputMethodServiceDelegate.
                 break;
             case WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN:
                 if (forwardNavigation) {
+                    Log.d(TAG, "onHideSoftInput: 2");
                     window.hide();
                 }
                 break;
             case WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN:
+                Log.d(TAG, "onHideSoftInput: 3");
                 window.hide();
+                window.onFinishClient();
                 break;
         }
         mInputMethod.mDisplayToLastClientId.put(mSelfReportedDisplayId, mClientId);
@@ -203,7 +213,7 @@ final class ClientCallbackImpl implements MultiClientInputMethodServiceDelegate.
 
     @Override
     public void onUpdateSelection(int oldSelStart, int oldSelEnd, int newSelStart, int newSelEnd,
-            int candidatesStart, int candidatesEnd) {
+                                  int candidatesStart, int candidatesEnd) {
     }
 
     @Override
@@ -248,6 +258,7 @@ final class ClientCallbackImpl implements MultiClientInputMethodServiceDelegate.
             final SoftInputWindow window =
                     mSoftInputWindowManager.getSoftInputWindow(mSelfReportedDisplayId);
             if (window != null && window.isShowing()) {
+                Log.d(TAG, "onHideSoftInput: 4");
                 window.hide();
                 return true;
             }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.zqy.multidisplayinput;
+package com.elo.android.multiclientinputmethod;
 
 import android.content.Context;
 import android.hardware.display.DisplayManager;
