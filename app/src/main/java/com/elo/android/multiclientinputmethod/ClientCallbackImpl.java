@@ -16,11 +16,13 @@
 
 package com.elo.android.multiclientinputmethod;
 
+import android.hardware.display.DisplayManager;
 import android.inputmethodservice.MultiClientInputMethodServiceDelegate;
 import android.os.Bundle;
 import android.os.Looper;
 import android.os.ResultReceiver;
 import android.util.Log;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.WindowManager;
@@ -42,11 +44,12 @@ final class ClientCallbackImpl implements MultiClientInputMethodServiceDelegate.
     private final KeyEvent.DispatcherState mDispatcherState;
     private final Looper mLooper;
     private final MultiClientInputMethod mInputMethod;
+    private DisplayManager mDisplayManager;
 
     ClientCallbackImpl(MultiClientInputMethod inputMethod,
                        MultiClientInputMethodServiceDelegate delegate,
                        SoftInputWindowManager softInputWindowManager, int clientId, int uid, int pid,
-                       int selfReportedDisplayId) {
+                       int selfReportedDisplayId, DisplayManager displayManager) {
         mInputMethod = inputMethod;
         mDelegate = delegate;
         mSoftInputWindowManager = softInputWindowManager;
@@ -60,7 +63,7 @@ final class ClientCallbackImpl implements MultiClientInputMethodServiceDelegate.
         // and introduce an appropriate synchronization mechanism instead of directly accessing
         // MultiClientInputMethod#mDisplayToLastClientId.
         mLooper = Looper.getMainLooper();
-
+        mDisplayManager=displayManager;
     }
 
     KeyEvent.DispatcherState getDispatcherState() {
@@ -108,10 +111,14 @@ final class ClientCallbackImpl implements MultiClientInputMethodServiceDelegate.
         }
         // Seems that the Launcher3 has a bug to call onHideSoftInput() too early so we cannot
         // enforce clientId check yet.
-        // TODO: Check clientId like we do so for onShowSoftInput().
-
         Log.d(TAG, "onHideSoftInput: 1");
-        window.hide();
+        if (mClientId != window.getClientId()) {
+            Log.w(TAG, "onHideSoftInput() from a background client is ignored."
+                    + " windowClientId=" + window.getClientId()
+                    + " clientId=" + mClientId);
+            return;
+        }
+        window.dismiss();
     }
 
     @Override
@@ -178,8 +185,18 @@ final class ClientCallbackImpl implements MultiClientInputMethodServiceDelegate.
             } else {
                 Log.d(TAG, "onStartInputOrWindowGainedFocus: gidi4");
                 window.onDummyStartInput(mClientId, targetWindowHandle);
+                Display[] displays = mDisplayManager.getDisplays(DisplayManager.DISPLAY_CATEGORY_PRESENTATION);
+                final SoftInputWindow sWindow =
+                        mSoftInputWindowManager.getOrCreateSoftInputWindow(displays[0].getDisplayId());
+                if (sWindow != null) {
+                    Log.d(TAG, "onStartInputOrWindowGainedFocus67: ");
+//                    sWindow.hide();
+//                    sWindow.onFinishClient();
+                    sWindow.onDummyStartInput(sWindow.getClientId(), sWindow.getTargetWindowHandle());
+                }
             }
         } else {
+            Log.d(TAG, "onStartInputOrWindowGainedFocus: gidi5");
             window.onStartInput(mClientId, targetWindowHandle, inputConnection);
         }
 
@@ -195,12 +212,12 @@ final class ClientCallbackImpl implements MultiClientInputMethodServiceDelegate.
             case WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN:
                 if (forwardNavigation) {
                     Log.d(TAG, "onHideSoftInput: 2");
-                    window.hide();
+                    window.dismiss();
                 }
                 break;
             case WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN:
                 Log.d(TAG, "onHideSoftInput: 3");
-                window.hide();
+                window.dismiss();
                 window.onFinishClient();
                 break;
         }
@@ -259,7 +276,7 @@ final class ClientCallbackImpl implements MultiClientInputMethodServiceDelegate.
                     mSoftInputWindowManager.getSoftInputWindow(mSelfReportedDisplayId);
             if (window != null && window.isShowing()) {
                 Log.d(TAG, "onHideSoftInput: 4");
-                window.hide();
+                window.dismiss();
                 return true;
             }
         }

@@ -67,7 +67,7 @@ public final class MultiClientInputMethod extends Service implements DisplayList
                                 selfReportedDisplayId);
                         final ClientCallbackImpl callback = new ClientCallbackImpl(
                                 MultiClientInputMethod.this, mDelegate,
-                                mSoftInputWindowManager, clientId, uid, pid, imeDisplayId);
+                                mSoftInputWindowManager, clientId, uid, pid, imeDisplayId,mDisplayManager);
                         if (DEBUG) {
                             Log.v(TAG, "addClient clientId=" + clientId + " uid=" + uid
                                     + " pid=" + pid + " displayId=" + selfReportedDisplayId

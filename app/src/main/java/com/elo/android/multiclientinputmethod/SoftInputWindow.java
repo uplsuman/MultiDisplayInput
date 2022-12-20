@@ -122,6 +122,7 @@ final class SoftInputWindow extends Dialog {
         mKeyboardView.setOnKeyboardActionListener(sNoopListener);
         mClientId = clientId;
         mTargetWindowHandle = targetWindowHandle;
+        dismiss();
     }
 
     void onStartInput(int clientId, int targetWindowHandle, InputConnection inputConnection) {
@@ -142,7 +143,7 @@ final class SoftInputWindow extends Dialog {
                 resetShift();
                 switch (primaryCode) {
                     case KeyCodes.KEYCODE_CANCEL:
-                        hide();
+                        dismiss();
                         break;
                     case KeyCodes.KEYCODE_DELETE:
                         inputConnection.sendKeyEvent(
